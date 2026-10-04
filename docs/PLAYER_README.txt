@@ -346,8 +346,11 @@ REQUIREMENTS
 
 INSTALL
 -------
-Extract this zip into your Black Ops III folder - the folder that contains
-ezz's boiii.exe. That is all.
+Copy the zip's contents into your Black Ops III folder - the folder that
+contains ezz's boiii.exe: open the zip, select the "boiii" folder and
+README.txt, and drag them into that folder (allow merging). The mod must end
+up as  Black Ops III\boiii\plugins\bo3_local_splitscreen.dll  - do not use
+"Extract All" into a new folder, the extra folder level hides the plugin.
 
 The zip adds only these files:
 

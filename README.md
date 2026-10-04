@@ -16,9 +16,6 @@ the ezz source line and the game address. None of it is required: the mod
 works around every point itself today, and each item says how. Item 12 is an
 ezz bug that hits every ezz player, with or without this mod.
 
-**This code is public domain ([The Unlicense](LICENSE)).** Take it, change it,
-merge it into your client, ship it under your own name. No credit needed.
-
 ---
 
 ## How it works (short version)
