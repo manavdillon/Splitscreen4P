@@ -1,0 +1,46 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build, smoke-test and package
+        shell: pwsh
+        run: .\build.ps1
+
+      - name: Upload the package
+        uses: actions/upload-artifact@v4
+        with:
+          name: Splitscreen4P
+          path: dist/*.zip
+          if-no-files-found: error
+
+      - name: Release (tags only)
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = '${{ github.ref_name }}'
+          $version = (Get-Content VERSION -Raw).Trim()
+          if ($tag -ne "v$version") { throw "tag $tag does not match VERSION $version" }
+          $zip = Get-Item dist\*.zip
+          # release notes: the CHANGELOG section of this version
+          $log = Get-Content CHANGELOG.md -Raw
+          $m = [regex]::Match($log, "(?ms)^## $([regex]::Escape($version)).*?(?=^## |\z)")
+          $notes = if ($m.Success) { $m.Value.Trim() } else { "Release $tag" }
+          $notes += "`n`n**Install:** download the zip, extract it anywhere, double-click INSTALL.cmd. SHA-256 of the zip: " + (Get-FileHash $zip -Algorithm SHA256).Hash.ToLower()
+          Set-Content notes.md $notes
+          gh release create $tag $zip.FullName --title "$version" --notes-file notes.md --verify-tag
