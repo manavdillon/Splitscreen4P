@@ -79,19 +79,28 @@ function Find-SteamLibraries {
         } catch {}
     }
     $roots += 'C:\Program Files (x86)\Steam'
-    $libraries = @()
-    foreach ($root in ($roots | Select-Object -Unique)) {
+    # libraryfolders.vdf entries come first: Steam writes them with the real
+    # capitalisation, the registry value is all lower-case.
+    $fromVdf = @()
+    $fromRegistry = @()
+    foreach ($root in $roots) {
         $root = $root -replace '/', '\'
         if (-not (Test-Path $root)) { continue }
-        $libraries += $root
+        $fromRegistry += $root
         $vdf = Join-Path $root 'steamapps\libraryfolders.vdf'
         if (Test-Path $vdf) {
             foreach ($match in [regex]::Matches((Get-Content $vdf -Raw), '"path"\s+"([^"]+)"')) {
-                $libraries += ($match.Groups[1].Value -replace '\\\\', '\')
+                $fromVdf += ($match.Groups[1].Value -replace '\\\\', '\')
             }
         }
     }
-    return @($libraries | Select-Object -Unique)
+    $libraries = @()
+    foreach ($candidate in ($fromVdf + $fromRegistry)) {
+        $known = $false
+        foreach ($have in $libraries) { if ($have.TrimEnd('\') -ieq $candidate.TrimEnd('\')) { $known = $true } }
+        if (-not $known) { $libraries += $candidate }
+    }
+    return @($libraries)
 }
 
 function Find-GameFolder {
