@@ -469,7 +469,7 @@ local function update_notice()
 	-- The address is text: BOIII stubs OpenURL for Lua (unsafe-Lua warning).
 	LuaUtils.ShowMessageDialog(0, 0,
 		"Version " .. latest .. " is available (you have " .. current .. ").\n"
-			.. "Download: nexusmods.com/callofdutyblackops3/mods/53\n(or the GitHub releases page)",
+			.. "Download: github.com/manavdillon/BO3-Splitscreen-4P/releases\n(run INSTALL.cmd from the new zip)",
 		"BO3 Local Splitscreen")
 end
 

@@ -1,11 +1,39 @@
-BO3 Local Splitscreen 2.6.9  -  build {VERSION}
-================================================
+BO3 Splitscreen 4P 2.7.0  -  build {VERSION}
+============================================
 
 Up to FOUR local split-screen players for Call of Duty: Black Ops III on PC -
 Zombies and Multiplayer (offline custom games, bots work too). An ezz BOIII
 plugin. Local (offline) play only.
 
-This is a BETA. Please report what works and what does not.
+This is a BETA. Please report what works and what does not:
+https://github.com/manavdillon/BO3-Splitscreen-4P/issues
+
+The mod itself is LocalPlayer123's "BO3 4-Player Local Splitscreen on PC"
+(https://github.com/LocalPlayer123/BO3-4-Player-Local-Splitscreen-on-PC);
+this package adds a one-click installer around it.
+
+
+NEW IN 2.7.0
+------------
+* New: one-click setup. Extract the zip anywhere and double-click
+  INSTALL.cmd. It finds your Black Ops III folder through Steam, checks
+  that BlackOps3.exe is the game build the mod is made for, installs ezz
+  BOIII 3.0.0 if it is not there yet (downloaded from the ezz GitHub
+  release and checked against its SHA-256), copies the mod files to the
+  right place, and puts a "Black Ops III - 4 Player Splitscreen" shortcut
+  on the desktop that starts the game with ezz. Run it again to update.
+* New: CHECK.cmd tells you what is installed and whether ezz loaded the
+  mod on the last start, and lists the controllers Windows sees - run it
+  before reporting a problem. UNINSTALL.cmd removes the mod again.
+* The game code is unchanged from 2.6.9 (LocalPlayer123's mod): same
+  plugin, same fixes, same known issues. The update notice now points at
+  this package's releases page.
+* For developers: one build script (build.ps1) fetches MinHook, builds
+  the plugin, runs the smoke test and makes this zip; GitHub Actions does
+  the same for every push and release.
+
+Updating from 2.2 - 2.6.9: run INSTALL.cmd (or extract the boiii folder
+over the old files, as before).
 
 
 NEW IN 2.6.9
@@ -335,48 +363,59 @@ START (-allowproxydlls is not needed with ezz BOIII).
 
 REQUIREMENTS
 ------------
-* Black Ops III on Steam with the ezz BOIII client, already installed and
-  working (its boiii.exe in your Black Ops III folder). On its first start
-  ezz BOIII installs the game version it needs - that is ezz's own setup,
-  not this mod.
-* One controller per player (Xbox or PlayStation)
+* Black Ops III on Steam (installed and started at least once).
+* Windows 10 or 11, 64-bit.
+* One controller per player (Xbox or PlayStation).
 * Steam Input switched ON for Black Ops III (this is Steam's default).
   With Steam Input off the game does not see any controller.
+* ezz BOIII 3.0.0 - INSTALL.cmd installs it for you if it is missing.
 
 
 INSTALL
 -------
-Copy the zip's contents into your Black Ops III folder - the folder that
-contains ezz's boiii.exe: open the zip, select the "boiii" folder and
-README.txt, and drag them into that folder (allow merging). The mod must end
-up as  Black Ops III\boiii\plugins\bo3_local_splitscreen.dll  - do not use
-"Extract All" into a new folder, the extra folder level hides the plugin.
+1. Extract this zip anywhere (Downloads is fine).
+2. Double-click INSTALL.cmd. A window shows every step with [OK], [WARN]
+   or [FAIL]. If Windows asks whether to run the file, allow it.
+3. Done when it says "install finished". Run INSTALL.cmd again at any
+   time: it updates what is there.
 
-The zip adds only these files:
+If Steam does not know where the game is (for example a copied folder),
+run it as   INSTALL.cmd "D:\Games\Call of Duty Black Ops III"   with the
+folder that contains BlackOps3.exe, or type the folder when asked.
 
-    boiii\plugins\bo3_local_splitscreen.dll   (the mod; ezz loads it)
+What the installer puts into your Black Ops III folder (nothing else, no
+game file is replaced):
+
+    boiii.exe                                  (ezz BOIII 3.0.0, only if missing)
+    boiii\plugins\bo3_local_splitscreen.dll    (the mod; ezz loads it)
     boiii\ui_scripts\zz_table_insert\
     boiii\ui_scripts\zz_splitscreen\
-    boiii\ui_scripts\zz_mplan\            (MULTIPLAYER in PLAY OFFLINE)
+    boiii\ui_scripts\zz_mplan\                 (MULTIPLAYER in PLAY OFFLINE)
 
-No game files are replaced by this mod. ezz BOIII lists the plugins it
-loaded in boiii_players\plugins.log inside your Black Ops III folder
-("Loaded: BO3 Local Splitscreen").
+and a shortcut "Black Ops III - 4 Player Splitscreen" on the desktop.
+
+Manual install (if you prefer): drag the zip's "boiii" folder into your
+Black Ops III folder (merge), with ezz's boiii.exe already there. The mod
+must end up as  Black Ops III\boiii\plugins\bo3_local_splitscreen.dll.
 
 
 START
 -----
-Start ezz BOIII the way you always do - the mod loads with the game.
+Use the desktop shortcut - it starts boiii.exe with -launch, which skips
+ezz's launcher window. Or start boiii.exe in the game folder.
 
-To start it with Steam's Play button: Steam library -> right-click
-Call of Duty: Black Ops III -> Properties -> General -> Launch Options, and
-enter (with the quotes):
+To start it with Steam's Play button instead: Steam library ->
+right-click Call of Duty: Black Ops III -> Properties -> General ->
+Launch Options, and enter (with the quotes):
 
     "<your Black Ops III folder>\boiii.exe" -launch %command%
 
 Replace <your Black Ops III folder> with the full path of that folder - in
 Steam: right-click the game -> Manage -> Browse local files shows it.
--launch skips ezz's launcher window; leave it out if you want to see it.
+
+On its first start ezz BOIII sets itself up (that is ezz, not this mod).
+If Steam has updated the game to a newer BlackOps3.exe, ezz offers to
+download the compatible one - press OK; the mod needs that exe too.
 
 
 PLAY
@@ -399,8 +438,17 @@ never changed.
 
 UNINSTALL
 ---------
-Delete boiii\plugins\bo3_local_splitscreen.dll and the three ui_scripts
-folders listed under INSTALL.
+Double-click UNINSTALL.cmd: it removes the mod files and the desktop
+shortcut. ezz BOIII stays (delete boiii.exe from the game folder to remove
+it as well). By hand: delete boiii\plugins\bo3_local_splitscreen.dll and
+the three ui_scripts folders listed under INSTALL.
+
+
+SOMETHING WRONG?
+----------------
+Double-click CHECK.cmd. It checks the game build, ezz, every mod file and
+whether ezz loaded the mod on the last start (boiii_players\plugins.log),
+and lists the controllers Windows sees. Nothing is changed.
 
 
 KNOWN ISSUES

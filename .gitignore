@@ -1,0 +1,9 @@
+# build output
+out/
+dist/
+# fetched dependencies (build.ps1 downloads MinHook here)
+deps/
+# editor / OS
+.vs/
+*.user
+Thumbs.db

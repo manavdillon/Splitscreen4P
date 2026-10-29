@@ -16,12 +16,18 @@
 		// PS4 `set` creates an unknown dvar as a string (Dvar_SetFromStringByNameFromSource
 		// 0x10A53C0 -> _Dvar_RegisterString).
 
-		// This build's version. release/build.ps1 refuses a package whose README says otherwise.
-		constexpr char mod_version[] = "2.6.9";
+		// This build's version (build.ps1 checks it against VERSION and the git tag).
+#ifndef SS_MOD_VERSION
+#define SS_MOD_VERSION "2.7.0"   // build.ps1 passes the VERSION file through ss_build.hpp
+#endif
+#ifndef SS_UPDATE_REPO_PATH
+#define SS_UPDATE_REPO_PATH L"/repos/manavdillon/BO3-Splitscreen-4P/releases/latest"
+#endif
+		constexpr char mod_version[] = SS_MOD_VERSION;
 
 #ifndef SS_NO_UPDATE_CHECK
 		constexpr wchar_t update_host[] = L"api.github.com";
-		constexpr wchar_t update_path[] = L"/repos/LocalPlayer123/BO3-4-Player-Local-Splitscreen-on-PC/releases/latest";
+		constexpr wchar_t update_path[] = SS_UPDATE_REPO_PATH;
 		constexpr wchar_t update_agent[] = L"BO3-Local-Splitscreen";
 		constexpr char update_off_switch[] = "-splitscreen_noupdate";
 		constexpr size_t update_body_max = 256 * 1024;

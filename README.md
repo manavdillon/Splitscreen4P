@@ -1,160 +1,139 @@
-# BO3 4-Player Local Splitscreen on PC
+# BO3 Splitscreen 4P
 
-Up to **four local splitscreen players** in Call of Duty: Black Ops III on PC
-(the game itself allows two). Built as a component for the BOIII client -
-since 2.0 for **ezz BOIII** - and shipped as an ezz plugin
-(`boiii\plugins\bo3_local_splitscreen.dll`, since 2.1).
+**Four local split-screen players in Call of Duty: Black Ops III on PC** (the game
+itself stops at two). Zombies and offline Multiplayer, bots included. One zip,
+one double-click.
 
-Status: **beta**. 4-player Zombies and 4-player offline Multiplayer (bots too)
-work under ezz BOIII 3.0 (lobby, loadouts, 2x2 screens, HUD per pane,
-back-to-back rounds). See [OPEN_PROBLEMS.md](docs/OPEN_PROBLEMS.md) for
-everything that is not solved yet - please read it before changing things.
+This is a fork of LocalPlayer123's
+[BO3 4-Player Local Splitscreen on PC](https://github.com/LocalPlayer123/BO3-4-Player-Local-Splitscreen-on-PC),
+which does the real work: an [ezz BOIII](https://github.com/Ezz-lol/boiii-free)
+plugin that makes the PC build behave like the console build at runtime. This
+fork keeps that code unchanged and adds what was missing to just play:
 
-**ezz BOIII developers:** [EZZ_REQUIRED_CHANGES.md](docs/EZZ_REQUIRED_CHANGES.md)
-lists what ezz could change to support four local players natively, each with
-the ezz source line and the game address. None of it is required: the mod
-works around every point itself today, and each item says how. Item 12 is an
-ezz bug that hits every ezz player, with or without this mod.
+- **INSTALL.cmd** finds the game through Steam, checks the game build, installs
+  ezz BOIII if needed (hash-verified), puts the mod files in the right place and
+  creates a desktop shortcut. Run it again to update.
+- **CHECK.cmd** says what is installed, whether ezz loaded the mod on the last
+  start, and which controllers Windows sees. **UNINSTALL.cmd** removes the mod.
+- **Reproducible builds**: `build.ps1` fetches a pinned MinHook, builds the DLL,
+  runs the smoke test and packages the zip; GitHub Actions runs it on every
+  push and publishes every tagged release.
+
+Status: **beta**, like upstream. Read upstream's
+[OPEN_PROBLEMS.md](docs/OPEN_PROBLEMS.md) before changing game code.
 
 ---
 
-## How it works (short version)
+## Play
 
-The PC executable was compiled for two local players: most per-local-client
-arrays are `[2]` and most loops over local clients stop at 2. The PS4 build of
-the same game keeps them `[4]`. The component makes the PC behave like the
-console again, at runtime, without touching any file on disk:
+1. Download `BO3-Splitscreen-4P-<version>.zip` from
+   [Releases](https://github.com/manavdillon/BO3-Splitscreen-4P/releases) and
+   extract it anywhere.
+2. Double-click **INSTALL.cmd**. Every step prints `[OK]`, `[WARN]` or `[FAIL]`.
+3. Connect the controllers (Xbox or PlayStation; Steam Input on, which is
+   Steam's default). Connect all of them before players join.
+4. Start the game with the new desktop shortcut **Black Ops III - 4 Player
+   Splitscreen** (it runs `boiii.exe -launch`).
+5. **PLAY OFFLINE**, then **ZOMBIES** or **MULTIPLAYER**. In the lobby every
+   extra player presses **A** to join (B leaves). Start the match: 3 players =
+   3 screens, 4 players = 2 x 2.
 
-1. **Relocate** every per-local-client array that is `[2]` on PC to a new `[4]`
-   allocation near the module and rewrite every instruction that addresses it
-   (rip-relative and image-relative `disp32`, found by scanning every function
-   and every gap between functions byte by byte). Where only a few small
-   functions use an array, those functions are re-implemented in C++ on the
-   mod's own `[4]` storage instead, after running side by side with the
-   engine's versions in a diagnostic build (so far: `cg_zbarriers` and
-   `s_cachedStatsChanges`).
-2. **Widen** the loop bounds / range checks from 2 to 4 - but only after every
-   array such a loop touches has been checked for slot 2/3 (slot 2 of a `[2]`
-   array usually lies on a foreign global; widening first only moves the crash).
-3. **Hooks** for the few places where the PC made a different, 2-player-only
-   decision (pane geometry, sign-in of controllers 2/3, sun-shadow slots, ...):
-   C++ functions behind MinHook detours, rewritten `call` sites, or - where
-   there is no call or function boundary - a mid-function hook
-   (`splitscreen_midhook.hpp`: one shared trampoline hands all registers to a
-   C++ function and continues where it says; every build runs a native
-   self-test of it). No patch-specific machine code remains.
-   `splitscreen_ezz.hpp` bridges the places where ezz BOIII itself is sized
-   for two players (XUID table, name map, static cgame pools) and works
-   around ezz's ClientCommand hook (see EZZ_REQUIRED_CHANGES.md).
-4. **Lua** (`ui_scripts`) for the lobby side: console-style join with A / leave
-   with B, and a table fix the stock scripts need with more than two players.
+Players 3 and 4 can only join offline lobbies: the online lobby allows two
+players per PC, a rule of the game. Players 2 to 4 play with a copy of player
+1's classes and stats for the session; player 1's save is never changed.
 
-Every patch verifies the original bytes first and skips itself (with a log
-line in diagnostic builds) if they differ - it never writes into code it does
-not recognise. The comments in the component are the real documentation:
-almost every site names the PS4 function it was checked against and what was
-measured.
+### Requirements
 
-**Game build:** everything targets `BlackOps3.exe` with PE checksum
-**0x06531394** (the build ezz BOIII 3.0 installs). On any other build the
-component stands down and the game runs unmodified. A new game build needs
-every RVA re-mapped - they are all in one file,
-`src/component/splitscreen_addresses.hpp` (the code refers to them by name,
-and the release build refuses an address anywhere else). Versions up to 1.1
-targeted 0x06517980, the build the CBServers BOIII client runs.
+- Black Ops III on Steam, Windows 10/11 64-bit.
+- ezz BOIII **3.0.0** (the installer downloads it if `boiii.exe` is missing).
+- The game build ezz 3.0.0 runs: `BlackOps3.exe` with PE checksum
+  `0x06531394` (Steam build 24784313). If Steam updated the game, ezz offers
+  to download the compatible exe on its first start; say yes.
+
+### If something is wrong
+
+Double-click **CHECK.cmd**. It changes nothing and tells you which part is
+missing. When reporting a problem, say which map, how many players and what
+you did just before, and attach the newest file from
+`%LOCALAPPDATA%\boiii\minidumps` if the game crashed. Known issues are in the
+zip's `README.txt` (KNOWN ISSUES) and in [docs/OPEN_PROBLEMS.md](docs/OPEN_PROBLEMS.md).
+
+### Manual install
+
+Still works: drag the zip's `boiii` folder into your Black Ops III folder (the
+one with ezz's `boiii.exe`) and merge. The mod must end up as
+`Black Ops III\boiii\plugins\bo3_local_splitscreen.dll`.
+
+---
+
+## Build
+
+Needs Visual Studio 2022 with "Desktop development with C++". Everything
+else is fetched.
+
+```
+.\build.ps1                 player build  -> out\bo3_local_splitscreen.dll + dist\BO3-Splitscreen-4P-<version>.zip
+.\build.ps1 -Diag           diagnostic build (trace in %LOCALAPPDATA%\boiii\splitscreen_ui_trace.txt)
+.\build.ps1 -NoUpdateCheck  no network code (Nexus Mods rules)
+.\build.ps1 -SkipPackage    DLL and smoke test only
+```
+
+The script imports the MSVC environment itself (vswhere), downloads MinHook
+at a pinned commit into `deps\minhook` (or uses `MINHOOK=<folder>`), compiles
+with upstream's exact flags, links, builds and runs `src\standalone\test\smoke.cpp`
+(loads the DLL the way ezz does and checks the export, the start trigger and
+the pin), then stages the zip with `SHA256SUMS.txt`. The version comes from
+the `VERSION` file and is compiled into the DLL for the update notice.
+
+**CI:** [.github/workflows/build.yml](.github/workflows/build.yml) runs the
+same script on `windows-2022` for every push and pull request and uploads the
+zip as an artifact. Pushing a tag `vX.Y.Z` (which must equal `VERSION`)
+publishes a GitHub release with the zip and the matching CHANGELOG section.
+
+**Release checklist:** bump `VERSION`, add the section to `CHANGELOG.md` and
+the "NEW IN" block to `docs/PLAYER_README.txt` (its title must name the
+version), commit, `git tag vX.Y.Z`, push the tag.
+
+Upstream's `build_standalone.cmd` is kept and still works from an x64 Native
+Tools prompt with `MINHOOK` set.
 
 ---
 
 ## Repository layout
 
 ```
-src/component/splitscreen.cpp          the component: readiness, try_apply (the order every patch
-                                       is applied in) and the component class
-src/component/splitscreen/*.inl        the patches by topic (core helpers, guest storage, sign-in,
-                                       panes, renderer, relocations, lobby, ...), #included in
-                                       order into splitscreen.cpp - one translation unit
-src/component/splitscreen_addresses.hpp  every game address for exe 0x06531394: patch sites,
-                                       expected and patch bytes, the relocations' reference
-                                       tables and the layout values they need
-src/component/splitscreen_ezz.hpp      ezz BOIII bridges (see docs/EZZ_REQUIRED_CHANGES.md)
-src/ui_scripts/zz_splitscreen/         lobby: console join with A / leave with B (the stock
-                                       console Lua branch, switched on for PC), fixes the
-                                       PC-only Activate/Deactivate Splitscreen button
-src/ui_scripts/zz_table_insert/        table.insert tolerates nil (stock Zombies HUD code
-                                       raises a full-screen UI error with 3+ players)
-src/ui_scripts/zz_mplan/               enables MULTIPLAYER in the offline menu (retail greys
-                                       it out unless a mod is loaded; keeps the ownership check)
-src/standalone/                        the ezz plugin build (bo3_local_splitscreen.dll)
-  compat/                              stand-ins for the few BOIII headers the component uses
-  runtime.cpp                          component registry, scheduler, hooks - no BOIII code
-  ezz_plugin.cpp, ezz_plugin.def       plugin entry (p_name) + start trigger
-  test/smoke.cpp                       offline smoke test of the DLL
-build_standalone.cmd                   builds the plugin (MSVC + MinHook)
-docs/OPEN_PROBLEMS.md                  what is broken or unverified - start here
-docs/EZZ_REQUIRED_CHANGES.md           what ezz BOIII could change natively (none of it required)
-docs/PLAN_EZZ_PORT.md                  the plan for moving the mod into ezz BOIII
-docs/PLAYER_README.txt                 the text players get with the zip
+setup/                       INSTALL.cmd, CHECK.cmd, UNINSTALL.cmd and splitscreen-setup.ps1 (the installer)
+build.ps1                    build + smoke test + package (local and CI)
+VERSION                      the one place the version lives
+src/component/               the mod (unchanged from upstream except the two build-time macros
+                             in splitscreen/16_update_check.inl)
+src/ui_scripts/              the three Lua scripts (one line changed: the update notice's link)
+src/standalone/              the ezz plugin shell, compat headers and the smoke test
+docs/PLAYER_README.txt       the README.txt that goes into the zip
+docs/OPEN_PROBLEMS.md        upstream: what is broken or unverified - read before touching game code
+docs/EZZ_REQUIRED_CHANGES.md upstream: what ezz BOIII could change natively
+docs/PLAN_EZZ_PORT.md        upstream: history of the port to ezz
+docs/UPSTREAM_README.md      upstream's README at the time of the fork (how the mod works, in depth)
+tools/                       upstream's analysis scripts
 ```
 
----
+## What changed against upstream
 
-## Option A: build it into the client (recommended)
+See [CHANGELOG.md](CHANGELOG.md). In short: nothing in the game patches. The
+version string and the update-check URL in `16_update_check.inl` are now
+macros that `build.ps1` sets from `VERSION`; the Lua update notice links here;
+everything else is new files around the mod.
 
-1. Copy `src/component/*` into the client's `src/client/component/`. For a
-   native ezz integration, EZZ_REQUIRED_CHANGES.md says which parts of
-   `splitscreen_ezz.hpp` become unnecessary once ezz sizes its own tables
-   for four.
-2. The component registers itself with `REGISTER_COMPONENT` and does its work in
-   `post_unpack()`. It uses only `utils::hook`, `scheduler` (the `async` and
-   `renderer` pipelines) and `game::` basics.
-3. There are no switches: the component has one fixed behaviour, the one
-   the plugin ships. (The experiment switches and test instrumentation from
-   development were removed in the September 2026 cleanup; their history is
-   in the git log.)
-4. Ship the three `ui_scripts` folders wherever your client loads UI scripts
-   from (the plugin package puts them in `<game folder>\boiii\ui_scripts\`).
-5. Built in, no plugin DLL is needed.
+## Credits
 
-Define `SS_DIAG` to get a log (`%LOCALAPPDATA%\boiii\splitscreen_ui_trace.txt`)
-with one line for every patch that stands down because the game's bytes
-differ - useful on a new game build, never needed by players.
+- **LocalPlayer123** wrote the mod, every patch, and the documentation under
+  `docs/`. The git history of this fork is theirs up to the fork point.
+- **rdevathu** found and fixed the sprint bug for players 3/4 (upstream PR 1).
+- **ezz** for the BOIII client and its plugin loader.
+- **Tsuda Kageyu** for [MinHook](https://github.com/TsudaKageyu/minhook)
+  (BSD 2-Clause; the license text ships in the zip's README.txt).
 
-## Option B: the ezz plugin
-
-Needs Visual Studio 2022 (C++ build tools) and the MinHook source
-(https://github.com/TsudaKageyu/minhook).
-
-```
-set MINHOOK=<folder with the MinHook source>
-build_standalone.cmd            (or: build_standalone.cmd diag)
-```
-
-Output `out\bo3_local_splitscreen.dll`. Players put it in
-`<game folder>\boiii\plugins\` together with `boiii\ui_scripts\zz_table_insert`,
-`zz_splitscreen` and `zz_mplan`. ezz loads every DLL in that folder and needs
-the export `p_name`. Details for players: `docs/PLAYER_README.txt`.
-
-The plugin starts right after ezz has run all its components' `post_unpack`
-(it redirects `boiii.exe`'s `SetProcessDPIAware` import, which ezz calls at
-that point), so ezz's own detours exist whatever order ezz loads plugins in.
-It checks the game build and otherwise does nothing, and pins itself (ezz
-frees plugins at exit while game threads may still run through its hooks).
-
----
-
-## Memory the component uses inside the image
-
-* `0x1A828D00`: the magic `0xB03C0FFE`, written once. The plugin checks it
-  so the component is never applied twice (a client with the component built
-  in, plus the plugin).
-* `0x1A828500`: the seat records (controller -> local client).
-
-Both lie in the unused tail of the last `.data` page.
-
-## Testing notes
-
-* Four real controllers need Steam Input on; Steam decides the XInput order.
-* Virtual pads (ViGEm) work well for automated tests.
-* Pad input is ignored while the game window is not in the foreground.
-* Crashes: BOIII writes `minidumps\boiii-crash-*.zip` in the game folder; the
-  zip contains a minidump with the exception record.
+The upstream repository carries no license file; this fork adds none for the
+upstream code and claims nothing over it. The files added by this fork
+(`setup/`, `build.ps1`, the workflow, this README, CHANGELOG) may be used
+freely.
