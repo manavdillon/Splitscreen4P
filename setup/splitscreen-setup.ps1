@@ -1,6 +1,6 @@
 #requires -Version 5.1
 <#
-  BO3 Splitscreen 4P - setup script (install / check / uninstall).
+  Splitscreen4P - setup script (install / check / uninstall).
 
   Players run it through INSTALL.cmd, CHECK.cmd and UNINSTALL.cmd. It can also
   be called directly:
@@ -21,7 +21,7 @@
     5. puts a shortcut on the desktop that starts the game with ezz (-launch)
 
   Nothing else is touched: no Steam settings, no game files, no registry.
-  A log of every run is kept in %LOCALAPPDATA%\BO3-Splitscreen-4P\setup.log.
+  A log of every run is kept in %LOCALAPPDATA%\Splitscreen4P\setup.log.
 #>
 param(
     [ValidateSet('install', 'check', 'uninstall')]
@@ -33,8 +33,8 @@ param(
 $ErrorActionPreference = 'Stop'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-$Script:ModName          = 'BO3 Splitscreen 4P'
-$Script:Repo             = 'manavdillon/BO3-Splitscreen-4P'
+$Script:ModName          = 'Splitscreen4P'
+$Script:Repo             = 'manavdillon/Splitscreen4P'
 $Script:ExpectedChecksum = 0x06531394        # BlackOps3.exe build the mod and ezz 3.0.0 target
 $Script:ExpectedBuild    = '24784313'        # Steam build id of that exe
 $Script:EzzVersion       = [version]'3.0.0'
@@ -43,7 +43,7 @@ $Script:EzzSha256        = 'e6c49cc3ecb145a05f92bd1051ebcafd9b201cf8c522b26308cc
 $Script:PluginName       = 'bo3_local_splitscreen.dll'
 $Script:UiScripts        = @('zz_mplan', 'zz_splitscreen', 'zz_table_insert')
 $Script:ShortcutName     = 'Black Ops III - 4 Player Splitscreen.lnk'
-$Script:LogDir           = Join-Path $env:LOCALAPPDATA 'BO3-Splitscreen-4P'
+$Script:LogDir           = Join-Path $env:LOCALAPPDATA 'Splitscreen4P'
 $Script:Failures         = 0
 $Script:Warnings         = 0
 
@@ -240,13 +240,13 @@ function Get-Payload {
     Info "No mod files next to this script - fetching the newest release of $($Script:Repo)..."
     $api = "https://api.github.com/repos/$($Script:Repo)/releases/latest"
     try {
-        $release = Invoke-RestMethod -UseBasicParsing -Uri $api -Headers @{ 'User-Agent' = 'BO3-Splitscreen-4P-setup'; 'Accept' = 'application/vnd.github+json' }
+        $release = Invoke-RestMethod -UseBasicParsing -Uri $api -Headers @{ 'User-Agent' = 'Splitscreen4P-setup'; 'Accept' = 'application/vnd.github+json' }
     } catch {
         Stop-Setup "Could not read the release list: $($_.Exception.Message)`n         Download the zip from https://github.com/$($Script:Repo)/releases and run its INSTALL.cmd."
     }
-    $asset = $release.assets | Where-Object { $_.name -like 'BO3-Splitscreen-4P-*.zip' } | Select-Object -First 1
-    if (-not $asset) { Stop-Setup "Release $($release.tag_name) has no BO3-Splitscreen-4P zip." }
-    $dir = Join-Path $env:TEMP "BO3-Splitscreen-4P-$([guid]::NewGuid().ToString('N'))"
+    $asset = $release.assets | Where-Object { $_.name -like 'Splitscreen4P-*.zip' } | Select-Object -First 1
+    if (-not $asset) { Stop-Setup "Release $($release.tag_name) has no Splitscreen4P zip." }
+    $dir = Join-Path $env:TEMP "Splitscreen4P-$([guid]::NewGuid().ToString('N'))"
     New-Item -ItemType Directory -Force $dir | Out-Null
     $zip = Join-Path $dir $asset.name
     Invoke-WebRequest -UseBasicParsing -Uri $asset.browser_download_url -OutFile $zip

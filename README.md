@@ -1,4 +1,4 @@
-# BO3 Splitscreen 4P
+# Splitscreen4P
 
 **Four local split-screen players in Call of Duty: Black Ops III on PC** (the game
 itself stops at two). Zombies and offline Multiplayer, bots included. One zip,
@@ -26,8 +26,8 @@ Status: **beta**, like upstream. Read upstream's
 
 ## Play
 
-1. Download `BO3-Splitscreen-4P-<version>.zip` from
-   [Releases](https://github.com/manavdillon/BO3-Splitscreen-4P/releases) and
+1. Download `Splitscreen4P-<version>.zip` from
+   [Releases](https://github.com/manavdillon/Splitscreen4P/releases) and
    extract it anywhere.
 2. Double-click **INSTALL.cmd**. Every step prints `[OK]`, `[WARN]` or `[FAIL]`.
 3. Connect the controllers (Xbox or PlayStation; Steam Input on, which is
@@ -72,7 +72,7 @@ Needs Visual Studio 2022 with "Desktop development with C++". Everything
 else is fetched.
 
 ```
-.\build.ps1                 player build  -> out\bo3_local_splitscreen.dll + dist\BO3-Splitscreen-4P-<version>.zip
+.\build.ps1                 player build  -> out\bo3_local_splitscreen.dll + dist\Splitscreen4P-<version>.zip
 .\build.ps1 -Diag           diagnostic build (trace in %LOCALAPPDATA%\boiii\splitscreen_ui_trace.txt)
 .\build.ps1 -NoUpdateCheck  no network code (Nexus Mods rules)
 .\build.ps1 -SkipPackage    DLL and smoke test only

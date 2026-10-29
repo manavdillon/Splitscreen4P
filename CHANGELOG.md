@@ -19,7 +19,7 @@ First release of the fork. The game code is 2.6.9, unchanged.
 - `CHECK.cmd`: read-only diagnosis (game build, ezz version, every mod file,
   `boiii_players\plugins.log` of the last start, newest crash dump,
   controllers Windows sees). `UNINSTALL.cmd` removes the mod, keeps ezz.
-- Setup logs to `%LOCALAPPDATA%\BO3-Splitscreen-4P\setup.log`.
+- Setup logs to `%LOCALAPPDATA%\Splitscreen4P\setup.log`.
 - The in-game update notice checks this fork's releases and names
   `INSTALL.cmd`.
 

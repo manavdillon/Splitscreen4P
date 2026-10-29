@@ -2,7 +2,7 @@
 <#
 .SYNOPSIS
   Builds bo3_local_splitscreen.dll from src\, runs the offline smoke test and
-  packages the release zip (dist\BO3-Splitscreen-4P-<version>.zip).
+  packages the release zip (dist\Splitscreen4P-<version>.zip).
 
   Works on a developer PC with Visual Studio 2022 (C++ build tools) and in
   GitHub Actions (.github\workflows\build.yml) with the same command:
@@ -31,8 +31,8 @@ Set-Location $root   # cl/link get relative paths only: no quoting, no trailing-
 if (-not $Version) { $Version = (Get-Content (Join-Path $root 'VERSION') -Raw).Trim() }
 if ($Version -notmatch '^\d+\.\d+\.\d+$') { throw "VERSION must be MAJOR.MINOR.PATCH, got '$Version'" }
 
-$PackageName   = 'BO3-Splitscreen-4P'
-$UpdateRepo    = 'manavdillon/BO3-Splitscreen-4P'
+$PackageName   = 'Splitscreen4P'
+$UpdateRepo    = 'manavdillon/Splitscreen4P'
 $MinHookCommit = 'c3fcafdc10146beb5919319d0683e44e3c30d537'   # tag v1.3.4
 $MinHookZip    = "https://github.com/TsudaKageyu/minhook/archive/$MinHookCommit.zip"
 
@@ -148,7 +148,7 @@ Copy-Item 'setup\INSTALL.cmd', 'setup\CHECK.cmd', 'setup\UNINSTALL.cmd' $stage
 Copy-Item 'setup\splitscreen-setup.ps1' "$stage\setup\"
 
 $readme = Get-Content 'docs\PLAYER_README.txt' -Raw
-if ($readme -notmatch [regex]::Escape("BO3 Splitscreen 4P $Version")) { throw "docs\PLAYER_README.txt does not name version $Version" }
+if ($readme -notmatch [regex]::Escape("Splitscreen4P $Version")) { throw "docs\PLAYER_README.txt does not name version $Version" }
 $license = Get-Content (Join-Path $minhookAbs 'LICENSE.txt') -Raw
 $readme = $readme.Replace('{VERSION}', $gitHash).Replace('{MINHOOK_LICENSE}', $license.Trim())
 Set-Content -Path "$stage\README.txt" -Value $readme -Encoding UTF8

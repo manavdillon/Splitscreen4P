@@ -21,7 +21,7 @@
 #define SS_MOD_VERSION "2.7.0"   // build.ps1 passes the VERSION file through ss_build.hpp
 #endif
 #ifndef SS_UPDATE_REPO_PATH
-#define SS_UPDATE_REPO_PATH L"/repos/manavdillon/BO3-Splitscreen-4P/releases/latest"
+#define SS_UPDATE_REPO_PATH L"/repos/manavdillon/Splitscreen4P/releases/latest"
 #endif
 		constexpr char mod_version[] = SS_MOD_VERSION;
 
