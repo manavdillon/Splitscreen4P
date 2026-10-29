@@ -110,7 +110,8 @@ if (-not $gitHash) { $gitHash = 'nogit' }
 $cc = @('/nologo', '/c', '/O1', '/GL', '/Gy', '/Gw', '/MT', '/DNDEBUG', '/DWIN32', '/D_WINDOWS', '/W3', '/Brepro')
 if ($Diag)          { $cc += '/DSS_DIAG' }
 if ($NoUpdateCheck) { $cc += '/DSS_NO_UPDATE_CHECK' }
-$cpp = $cc + @('/std:c++20', '/EHsc', '/Zc:__cplusplus', "/FI$obj\ss_build.hpp")
+# /FI resolves like #include "file" (relative to the source, then /I dirs), so $obj goes on /I.
+$cpp = $cc + @('/std:c++20', '/EHsc', '/Zc:__cplusplus', "/I$obj", '/FIss_build.hpp')
 
 Step 'Compile MinHook'
 Run cl ($cc + @("/I$minhook\include", "/Fo$obj\", "$minhook\src\buffer.c", "$minhook\src\hook.c", "$minhook\src\trampoline.c", "$minhook\src\hde\hde64.c"))
