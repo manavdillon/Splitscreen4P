@@ -69,6 +69,7 @@ namespace splitscreen
 		#include "splitscreen/14_player4_fixes.inl"
 		#include "splitscreen/15_stats_cache.inl"
 		#include "splitscreen/16_update_check.inl"
+		#include "splitscreen/17_player_fov.inl"
 
 		// Marks the image as patched: runtime.cpp's patched-twice check reads this
 		// magic and stands down instead of applying the component a second time.
@@ -359,6 +360,8 @@ namespace splitscreen
 			scheduler::loop(cl_init_watch, scheduler::pipeline::renderer, 250ms);
 			scheduler::loop(mirror_signin_state, scheduler::pipeline::async, 50ms);
 			scheduler::loop(maintain_signin_seats, scheduler::pipeline::async, 50ms);
+			// Players 2-4's FOV settings, as the options list writes them.
+			scheduler::loop(poll_player_fov, scheduler::pipeline::async, 250ms);
 
 			// s_targets must be widened before anything pumps controller 2 or 3.
 			const auto targets_ok = widen_storage_targets();
@@ -396,6 +399,8 @@ namespace splitscreen
 			install_no_shared_pause();
 			// Once per start: is a newer release out? (see run_update_check)
 			start_update_check();
+			// Each pane with its own player's field of view (17_player_fov.inl).
+			install_player_fov();
 
 			// CL_LocalClient_SetActive: the trigger for CL_Init(2) (see set_active_stub).
 			hook_if_stock(set_active_hook, set_active_rva, set_active_prologue, set_active_stub);

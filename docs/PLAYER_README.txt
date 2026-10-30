@@ -1,4 +1,4 @@
-Splitscreen4P 2.7.1  -  build {VERSION}
+Splitscreen4P 2.8.0  -  build {VERSION}
 ==========================================
 
 Up to FOUR local split-screen players for Call of Duty: Black Ops III on PC -
@@ -11,6 +11,20 @@ https://github.com/manavdillon/Splitscreen4P/issues
 The mod itself is LocalPlayer123's "BO3 4-Player Local Splitscreen on PC"
 (https://github.com/LocalPlayer123/BO3-4-Player-Local-Splitscreen-on-PC);
 this package adds a one-click installer around it.
+
+
+NEW IN 2.8.0
+------------
+* New: a field of view per player. Options > Controls now has a
+  "Player 2 / 3 / 4 field of view" slider (65-120) under the controller
+  choices. Each player's screen is drawn with their own value; player 1
+  keeps the usual Graphics slider, and a player whose slider was never
+  moved plays with player 1's. The values are saved with the other
+  settings. (This is the first change to the game code in this package:
+  every patched spot is checked first, and on a different game build the
+  feature simply stays off and the game plays as before.)
+
+Updating from 2.7.x: run INSTALL.cmd from this zip.
 
 
 NEW IN 2.7.1
@@ -458,7 +472,9 @@ PLAY
    to player 1. Once every other controller has joined, click ACTIVATE
    SPLITSCREEN and that controller becomes the next player; player 1 keeps
    the keyboard. Keyboard + 3 controllers = 4 players.
-4. Start the game. 3 players = 3 screens, 4 players = 2 x 2 screens.
+5. Field of view: Options > Controls has a "Player 2 / 3 / 4 field of view"
+   slider under the controller choices. Player 1 uses the Graphics slider
+   as always; a player whose slider was never moved plays with player 1's.
 
 Players 2-4 get a copy of player 1's weapon kits and stats every time they
 join. They can change their kits for that session; player 1's own save is

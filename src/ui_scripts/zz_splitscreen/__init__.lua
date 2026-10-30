@@ -28,6 +28,8 @@
 -- also serves keyboard + one pad), DEACTIVATE removes every extra local player.
 -- Splitscreen4P 2.7.1: with every connected pad seated and seats left, ACTIVATE
 -- lends player 1's pad to the next seat (keyboard player 1; see lend_player1_pad).
+-- Splitscreen4P 2.8.0: Options > Controls gets a field-of-view slider per player 2-4
+-- (fov_entry; the component draws each pane with its own value).
 --
 -- BOIII's LUI sandbox has no pcall: every global is checked for nil first.
 -- The overrides are (re)installed from a timer, so load order does not matter.
@@ -370,6 +372,66 @@ local function controller_entry(c)
 	}
 end
 
+-- Field of view per player (Splitscreen4P 2.8.0). cg_fov is one dvar and every pane is
+-- drawn from it, so the Graphics slider set every pane. The component writes each local
+-- client's own value into cg_fov right before that pane is drawn (17_player_fov.inl) and
+-- takes players 2-4's values from the string dvars splitscreen_fov_2..4, which these
+-- sliders write with `set` (the component marks them archived, so config.cfg keeps them).
+-- Not set: the player uses player 1's Graphics slider (cg_fov_default), which the slider
+-- shows then. Range as the stock slider (StartMenu_Options_Graphics_PC.lua, 65..120).
+local FOV_LOW = 65
+local FOV_HIGH = 120
+
+local function fov_dvar_name(c)
+	return "splitscreen_fov_" .. tostring(c + 1)
+end
+
+local function player1_fov()
+	if Dvar.cg_fov_default ~= nil then
+		local v = tonumber(Dvar.cg_fov_default:get())
+		if v ~= nil then
+			return v
+		end
+	end
+	return FOV_LOW
+end
+
+local function player_fov(c)
+	if Engine.DvarString ~= nil then
+		local v = tonumber(Engine.DvarString(nil, fov_dvar_name(c)))
+		if v ~= nil and v >= FOV_LOW and v <= FOV_HIGH then
+			return v
+		end
+	end
+	return player1_fov()
+end
+
+-- PCUtility's slider calls getFunction(optionController) and
+-- setFunction(optionController, "<integer>") (OptionsSliderUpdated, "%u").
+local function fov_entry(c)
+	return {
+		label = "Player " .. tostring(c + 1) .. " field of view",
+		description = "PLATFORM_FOV_DESC",
+		profileVarName = fov_dvar_name(c),
+		profileType = "function",
+		optionController = c,
+		lowValue = FOV_LOW,
+		highValue = FOV_HIGH,
+		useIntegerDisplay = 1,
+		widgetType = "slider",
+		getFunction = function(controller)
+			return player_fov(controller)
+		end,
+		setFunction = function(controller, value)
+			local v = tonumber(value)
+			if v == nil or Engine.Exec == nil then
+				return
+			end
+			Engine.Exec(0, "set " .. fov_dvar_name(controller) .. " " .. tostring(math.floor(v + 0.5)))
+		end
+	}
+end
+
 -- After the stock list is built: the stock entry (controller 1) gets the swap and the
 -- label "Player 2 controller"; players 1, 3 and 4 get entries of the same kind around it.
 local function add_controller_entries(list)
@@ -398,21 +460,28 @@ local function add_controller_entries(list)
 	end)
 	local root = ListHelper_GetListHelperModel(list, true)
 	local next_index = #items
-	local function make(c)
+	local function make(entry, properties)
 		next_index = next_index + 1
 		local old_model = Engine.GetModel(root, next_index)
 		if old_model ~= nil then
 			Engine.UnsubscribeAndFreeModel(old_model)
 		end
 		local model = Engine.CreateModel(root, next_index)
-		ListHelper_CreateModelsFromTable(model, controller_entry(c))
-		return { model = model, properties = stock.properties }
+		ListHelper_CreateModelsFromTable(model, entry)
+		return { model = model, properties = properties }
 	end
-	table.insert(items, stock_at, make(0))
+	table.insert(items, stock_at, make(controller_entry(0), stock.properties))
 	local at = stock_at + 2
 	for c = 2, SUPPORTED - 1 do
 		if controller_has_pad_slot(c) then
-			table.insert(items, at, make(c))
+			table.insert(items, at, make(controller_entry(c), stock.properties))
+			at = at + 1
+		end
+	end
+	-- Players 2-4's field of view, behind the controller entries (fov_entry).
+	if CoD ~= nil and CoD.PCUtil ~= nil and CoD.PCUtil.OptionsGenericSliderProperties ~= nil then
+		for c = 1, SUPPORTED - 1 do
+			table.insert(items, at, make(fov_entry(c), CoD.PCUtil.OptionsGenericSliderProperties))
 			at = at + 1
 		end
 	end

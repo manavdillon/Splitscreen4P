@@ -3,6 +3,22 @@
 Versions before 2.7.0 are upstream's (LocalPlayer123); their notes are in
 `docs/PLAYER_README.txt` under "NEW IN".
 
+## 2.8.0 - 2026-10-30
+
+**Field of view per player.** The game has one FOV dvar (`cg_fov`) and draws
+every pane from it, so the Graphics slider set all players' FOV at once. Now
+Options > Controls has a "Player 2/3/4 field of view" slider (65-120) under the
+controller choices. The component (`17_player_fov.inl`) writes each local
+client's own value into `cg_fov` right before that client's pane is drawn, from
+mid-function hooks in the engine's client loop, and puts player 1's value back
+after the loop, so the Graphics slider, the config write and everything else
+between frames see player 1's value. Players 2-4's values live in the string
+dvars `splitscreen_fov_2..4`, created by the sliders with `set` and marked
+archived by the component, so `config.cfg` keeps them. A slider that was never
+moved means "player 1's". The first change to the game patches in this fork:
+every site is checked against its stock bytes and the feature stays off, with
+the game as before, on any mismatch.
+
 ## 2.7.1 - 2026-10-30
 
 **Keyboard player 1 with up to three controllers.** On PC the keyboard and

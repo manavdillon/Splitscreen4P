@@ -3772,6 +3772,52 @@ namespace splitscreen
 		{0x01E989A2, 3, 7, true, 0x4400}, // mov r8d, [slot0.count]
 		{0x01E989AD, 3, 7, true, 0x4400}, // mov [slot0.count], r15d
 	};
+	// ======== splitscreen/17_player_fov.inl ========
+
+	// Dvar pointer slots, read by `mov rcx,[rip+..]` in the engine (cg_fov: the copy of
+	// the reset at 0x0086D44B and CG_SetFov 0x00879EC4; cg_fov_default: the reset
+	// 0x00879F10, with cg_fov_default_thirdperson in the next slot). The records they
+	// point at lie in the dvar pool, 0xA0 apart: hash +0, name +8, flags +0x18 (see
+	// dvar_flags_offset), type +0x1C, current value +0x28, latched +0x48, reset +0x68,
+	// domain +0x88. Measured 2026-10-30 on a memory image of the running game.
+	inline constexpr uint32_t cg_fov_dvar_rva = 0x049B2A78;
+	inline constexpr uint32_t cg_fov_default_dvar_rva = 0x17A472F0;
+	inline constexpr size_t dvar_name_offset = 0x08;
+	inline constexpr size_t dvar_type_offset = 0x1C;
+	inline constexpr size_t dvar_record_size = 0xA0;
+	inline constexpr size_t dvar_name_max = 64;
+	inline constexpr uint32_t dvar_type_float = 2;   // cg_fov, cg_fov_default (splitscreen_playerCount reads 6)
+	// SCR_UpdateFrame's client loops (the same function cg_frame_imms widens): the first
+	// position-independent bytes of each client's turn, with the client in ebx. Loop A
+	// is followed by `xor edx,edx; mov ecx,ebx; call 0x013CAFC0` (the per-client draw
+	// wrapper), loop B by the `je` that picks one of its two draw calls.
+	inline constexpr uint32_t frame_fov_loop_a_rva = 0x013E117B;
+	inline constexpr uint8_t frame_fov_loop_a_expected[] = {
+		0x44, 0x8B, 0xFB,         // mov r15d, ebx
+		0x89, 0x5D, 0x9C,         // mov [rbp-64h], ebx
+	};
+	inline constexpr uint32_t frame_fov_loop_b_rva = 0x013E1203;
+	inline constexpr uint8_t frame_fov_loop_b_expected[] = {
+		0x48, 0x8B, 0xF8,         // mov rdi, rax
+		0x45, 0x84, 0xE4,         // test r12b, r12b
+	};
+	static_assert(frame_fov_loop_a_rva + sizeof(frame_fov_loop_a_expected) < cg_frame_imms[1]);
+	static_assert(frame_fov_loop_b_rva > cg_frame_imms[2] && frame_fov_loop_b_rva + 6 < cg_frame_imms[3]);
+	// The single-client path 0x013DF75E: `xor edx,edx; mov ecx,r15d; call 0x013CAFC0`.
+	inline constexpr uint32_t frame_fov_single_rva = 0x013DF75E;
+	inline constexpr uint8_t frame_fov_single_expected[] = {
+		0x33, 0xD2,               // xor edx, edx
+		0x41, 0x8B, 0xCF,         // mov ecx, r15d
+	};
+	// The frame counter both loops' common exit calls (0x013E1273, its only caller):
+	// `mov rcx,[rip+..]; mov eax,[rcx+2F8h]` - detoured to put player 1's value back.
+	inline constexpr uint32_t frame_end_rva = 0x01CE54A0;
+	inline constexpr uint8_t frame_end_prologue[] = {
+		0x48, 0x8B, 0x0D, 0xF9, 0xE7, 0x77, 0x0D,   // mov rcx, [rip+0D77E7F9h]
+		0x8B, 0x81, 0xF8, 0x02, 0x00, 0x00,         // mov eax, [rcx+2F8h]
+	};
+	inline constexpr uint32_t frame_end_call_rva = 0x013E1273;
+	static_assert(frame_end_call_rva + 5 + 0x00904228 == frame_end_rva);
 }
 
 namespace splitscreen::ezz

@@ -45,6 +45,9 @@ Status: **beta**, like upstream. Read upstream's
    click **ACTIVATE SPLITSCREEN** and that pad becomes the next player while
    player 1 keeps the keyboard (keyboard + 3 pads = 4 players). Start the
    match: 3 players = 3 screens, 4 players = 2 x 2.
+6. Field of view per player: **Options > Controls** has a "Player 2/3/4 field
+   of view" slider under the controller choices (2.8.0). Player 1 keeps the
+   Graphics slider; a player whose slider was never moved uses player 1's.
 
 Players 3 and 4 can only join offline lobbies: the online lobby allows two
 players per PC, a rule of the game. Players 2 to 4 play with a copy of player
@@ -127,9 +130,12 @@ tools/                       upstream's analysis scripts
 
 ## What changed against upstream
 
-See [CHANGELOG.md](CHANGELOG.md). In short: nothing in the game patches. The
+See [CHANGELOG.md](CHANGELOG.md). In short: one game-side addition, the
+per-player field of view (`17_player_fov.inl`, 2.8.0: each pane is drawn with its
+own player's FOV; off, with the game as before, when the engine bytes differ). The
 lobby script `zz_splitscreen` lends player 1's pad to the next seat when every
-connected pad already has one (keyboard player 1, 2.7.1). The
+connected pad already has one (keyboard player 1, 2.7.1) and adds the FOV
+sliders to Options > Controls. The
 version string and the update-check URL in `16_update_check.inl` are now
 macros that `build.ps1` sets from `VERSION`; the Lua update notice links here;
 everything else is new files around the mod.
