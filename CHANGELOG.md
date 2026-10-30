@@ -16,6 +16,9 @@ guest presses B or DEACTIVATE is used. Keyboard + 3 pads = 4 players; 4 pads =
 4 players as before; solo play with a pad is unchanged. Lobby script
 (`zz_splitscreen`) only; the game patches are still upstream's 2.6.9.
 
+**No intro videos.** The desktop shortcut and the documented Steam launch
+option now pass ezz's `-nointro` next to `-launch`.
+
 **Docs.** Mixed controllers (a Steam Controller or a PlayStation pad next to
 an XInput one) need Steam Input for every pad, or two pads land in the same
 slot and drive the same player: right-click the game in Steam > Properties >

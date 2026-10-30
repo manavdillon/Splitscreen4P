@@ -18,7 +18,7 @@
     4. copies the mod (boiii\plugins\bo3_local_splitscreen.dll and three
        boiii\ui_scripts folders) from the zip this script came in, or from the
        newest GitHub release when run from a source checkout
-    5. puts a shortcut on the desktop that starts the game with ezz (-launch)
+    5. puts a shortcut on the desktop that starts the game with ezz (-launch -nointro)
 
   Nothing else is touched: no Steam settings, no game files, no registry.
   A log of every run is kept in %LOCALAPPDATA%\Splitscreen4P\setup.log.
@@ -298,12 +298,12 @@ function Install-Shortcut([string]$game) {
         $shell = New-Object -ComObject WScript.Shell
         $link = $shell.CreateShortcut($path)
         $link.TargetPath = Join-Path $game 'boiii.exe'
-        $link.Arguments = '-launch'
+        $link.Arguments = '-launch -nointro'
         $link.WorkingDirectory = $game
         $link.IconLocation = (Join-Path $game 'boiii.exe') + ',0'
         $link.Description = 'Start Black Ops III with ezz BOIII and the 4-player splitscreen mod'
         $link.Save()
-        Ok "$($Script:ShortcutName) on the desktop (boiii.exe -launch)"
+        Ok "$($Script:ShortcutName) on the desktop (boiii.exe -launch -nointro)"
     } catch {
         Warn "Could not create the shortcut: $($_.Exception.Message). Start boiii.exe in the game folder instead."
     }
@@ -325,7 +325,7 @@ function Show-PlayGuide {
     Info 'Mixed controllers (Steam Controller or PlayStation pad next to an Xbox-type pad) need Steam'
     Info 'Input for ALL of them, or two pads drive the same player. In Steam: right-click the game >'
     Info 'Properties > Controller > "Enable Steam Input", and under Launch Options:'
-    Info '   "<game folder>\boiii.exe" -launch %command%'
+    Info '   "<game folder>\boiii.exe" -launch -nointro %command%'
     Info 'then press Play in Steam instead of the desktop shortcut.'
 }
 

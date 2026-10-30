@@ -420,14 +420,14 @@ must end up as  Black Ops III\boiii\plugins\bo3_local_splitscreen.dll.
 
 START
 -----
-Use the desktop shortcut - it starts boiii.exe with -launch, which skips
+Use the desktop shortcut - it starts boiii.exe with -launch -nointro, which skips the intro videos and
 ezz's launcher window. Or start boiii.exe in the game folder.
 
 To start it with Steam's Play button instead: Steam library ->
 right-click Call of Duty: Black Ops III -> Properties -> General ->
 Launch Options, and enter (with the quotes):
 
-    "<your Black Ops III folder>\boiii.exe" -launch %command%
+    "<your Black Ops III folder>\boiii.exe" -launch -nointro %command%
 
 Replace <your Black Ops III folder> with the full path of that folder - in
 Steam: right-click the game -> Manage -> Browse local files shows it.
@@ -444,7 +444,7 @@ PLAY
    Xbox-type pad): start the game from Steam with Steam Input on for ALL
    of them, or two pads drive the same player. In Steam right-click the
    game > Properties > Controller > "Enable Steam Input", and under
-   Launch Options put:  "<game folder>\boiii.exe" -launch %command%
+   Launch Options put:  "<game folder>\boiii.exe" -launch -nointro %command%
    Then press Play in Steam instead of the desktop shortcut.
 2. Main menu: PLAY OFFLINE first, then ZOMBIES or MULTIPLAYER.
    Important: players 3 and 4 can only join the offline lobby. ezz BOIII's

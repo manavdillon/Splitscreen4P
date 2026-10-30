@@ -36,9 +36,9 @@ Status: **beta**, like upstream. Read upstream's
    Xbox-type pad) need Steam Input for all of them, or two pads drive the same
    player: in Steam right-click the game, Properties, Controller, **Enable
    Steam Input**, and set the Launch Options to
-   `"<game folder>\boiii.exe" -launch %command%`, then start from Steam.
+   `"<game folder>\boiii.exe" -launch -nointro %command%`, then start from Steam.
 4. Start the game with the new desktop shortcut **Black Ops III - 4 Player
-   Splitscreen** (it runs `boiii.exe -launch`), or from Steam as above.
+   Splitscreen** (it runs `boiii.exe -launch -nointro`), or from Steam as above.
 5. **PLAY OFFLINE**, then **ZOMBIES** or **MULTIPLAYER**. In the lobby every
    extra player presses **A** to join (B leaves). Player 1 on keyboard and
    mouse: the first pad belongs to player 1; once every other pad has joined,
