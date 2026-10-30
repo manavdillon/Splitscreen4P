@@ -18,7 +18,7 @@
 
 		// This build's version (build.ps1 checks it against VERSION and the git tag).
 #ifndef SS_MOD_VERSION
-#define SS_MOD_VERSION "2.7.0"   // build.ps1 passes the VERSION file through ss_build.hpp
+#define SS_MOD_VERSION "2.7.1"   // build.ps1 passes the VERSION file through ss_build.hpp
 #endif
 #ifndef SS_UPDATE_REPO_PATH
 #define SS_UPDATE_REPO_PATH L"/repos/manavdillon/Splitscreen4P/releases/latest"

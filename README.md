@@ -32,11 +32,19 @@ Status: **beta**, like upstream. Read upstream's
 2. Double-click **INSTALL.cmd**. Every step prints `[OK]`, `[WARN]` or `[FAIL]`.
 3. Connect the controllers (Xbox or PlayStation; Steam Input on, which is
    Steam's default). Connect all of them before players join.
+   Mixed controllers (a Steam Controller or PlayStation pad next to an
+   Xbox-type pad) need Steam Input for all of them, or two pads drive the same
+   player: in Steam right-click the game, Properties, Controller, **Enable
+   Steam Input**, and set the Launch Options to
+   `"<game folder>\boiii.exe" -launch %command%`, then start from Steam.
 4. Start the game with the new desktop shortcut **Black Ops III - 4 Player
-   Splitscreen** (it runs `boiii.exe -launch`).
+   Splitscreen** (it runs `boiii.exe -launch`), or from Steam as above.
 5. **PLAY OFFLINE**, then **ZOMBIES** or **MULTIPLAYER**. In the lobby every
-   extra player presses **A** to join (B leaves). Start the match: 3 players =
-   3 screens, 4 players = 2 x 2.
+   extra player presses **A** to join (B leaves). Player 1 on keyboard and
+   mouse: the first pad belongs to player 1; once every other pad has joined,
+   click **ACTIVATE SPLITSCREEN** and that pad becomes the next player while
+   player 1 keeps the keyboard (keyboard + 3 pads = 4 players). Start the
+   match: 3 players = 3 screens, 4 players = 2 x 2.
 
 Players 3 and 4 can only join offline lobbies: the online lobby allows two
 players per PC, a rule of the game. Players 2 to 4 play with a copy of player
@@ -120,6 +128,8 @@ tools/                       upstream's analysis scripts
 ## What changed against upstream
 
 See [CHANGELOG.md](CHANGELOG.md). In short: nothing in the game patches. The
+lobby script `zz_splitscreen` lends player 1's pad to the next seat when every
+connected pad already has one (keyboard player 1, 2.7.1). The
 version string and the update-check URL in `16_update_check.inl` are now
 macros that `build.ps1` sets from `VERSION`; the Lua update notice links here;
 everything else is new files around the mod.

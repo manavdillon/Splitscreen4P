@@ -3,6 +3,25 @@
 Versions before 2.7.0 are upstream's (LocalPlayer123); their notes are in
 `docs/PLAYER_README.txt` under "NEW IN".
 
+## 2.7.1 - 2026-10-30
+
+**Keyboard player 1 with up to three controllers.** On PC the keyboard and
+mouse are controller 0's input, and the game gives the first controller
+plugged in to controller 0 as well. So keyboard + two pads seated two players:
+one pad idled on player 1 and the lobby had nothing free to seat. Now, when
+ACTIVATE SPLITSCREEN is pressed while every connected pad already has a seat
+and seats are left, player 1's pad is lent to the next seat and that player
+joins. Player 1 stays on the keyboard. The pad goes back to player 1 when its
+guest presses B or DEACTIVATE is used. Keyboard + 3 pads = 4 players; 4 pads =
+4 players as before; solo play with a pad is unchanged. Lobby script
+(`zz_splitscreen`) only; the game patches are still upstream's 2.6.9.
+
+**Docs.** Mixed controllers (a Steam Controller or a PlayStation pad next to
+an XInput one) need Steam Input for every pad, or two pads land in the same
+slot and drive the same player: right-click the game in Steam > Properties >
+Controller > "Enable Steam Input". The installer's play guide and the readme
+say so.
+
 ## 2.7.0 - 2026-10-29
 
 First release of the fork. The game code is 2.6.9, unchanged.

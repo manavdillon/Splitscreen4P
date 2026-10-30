@@ -26,6 +26,8 @@
 -- reads DEACTIVATE. The click asks the same question as the label: ACTIVATE adds
 -- that pad's controller through the stock join (alone: the stock toggle, which
 -- also serves keyboard + one pad), DEACTIVATE removes every extra local player.
+-- Splitscreen4P 2.7.1: with every connected pad seated and seats left, ACTIVATE
+-- lends player 1's pad to the next seat (keyboard player 1; see lend_player1_pad).
 --
 -- BOIII's LUI sandbox has no pcall: every global is checked for nil first.
 -- The overrides are (re)installed from a timer, so load order does not matter.
@@ -68,6 +70,7 @@ local wrapped_toggle = nil
 local wrapped_add = nil
 local wrapped_handle_press = nil
 local wrapped_should_open = nil
+local wrapped_remove = nil
 
 -- Lobby.lua's PostLoadFunc runs `if CoD.isPC then f0_local0(menu) end`, and the
 -- PC f0_local0 registers `unused_gamepad_button -> return true` on the Lobby
@@ -192,6 +195,81 @@ local function free_pad_controller()
 	return nil
 end
 
+-- Keyboard player 1 (Splitscreen4P 2.7.1). On PC the keyboard and mouse are
+-- controller 0's input, and the engine's device assignment gives the first pad to
+-- controller 0 as well, so keyboard + N pads seated only N players: one pad idled
+-- on player 1 and the lobby had nothing free to seat (measured 2026-10-30, keyboard
+-- + 2 pads: both pads moved, player 3 never came). When ACTIVATE is pressed while
+-- every connected pad has a seat, player 1 holds one and the lobby has room, that
+-- pad is lent to the next empty controller, which joins through the stock join.
+-- Player 1 stays on the keyboard. The pad goes back to player 1 when its guest
+-- leaves (B, or DEACTIVATE) and player 1 holds no other pad. A pad-only group that
+-- presses the button by mistake is one B press away from the old state. Lent pads
+-- are remembered per controller for this menu session only (the script starts
+-- again after every match); afterwards Options > Controls > Player 1 controller
+-- takes a pad back.
+local lent_pads = {}
+
+local function valid_port(port)
+	if port == nil then
+		return false
+	end
+	if Engine.GamepadsConnectedValidPort ~= nil then
+		return Engine.GamepadsConnectedValidPort(port) == true
+	end
+	return type(port) == "number" and port >= 0
+end
+
+local function player1_pad_port()
+	if Engine.GamepadsConnectedPort == nil or Engine.GamepadsConnectedMap == nil then
+		return nil
+	end
+	local port = Engine.GamepadsConnectedPort(0)
+	if valid_port(port) then
+		return port
+	end
+	return nil
+end
+
+local function next_empty_controller()
+	for c = 1, SUPPORTED - 1 do
+		if Engine.IsControllerBeingUsed(c) ~= true then
+			return c
+		end
+	end
+	return nil
+end
+
+local function player1_pad_lendable()
+	return player1_pad_port() ~= nil and next_empty_controller() ~= nil
+end
+
+local function lend_player1_pad(menu)
+	local port = player1_pad_port()
+	local c = next_empty_controller()
+	if port == nil or c == nil or LobbyAddLocalClient == nil then
+		return false
+	end
+	log("lend: player 1's pad (port " .. tostring(port) .. ") -> controller " .. c)
+	Engine.GamepadsConnectedMap(c, port)
+	lent_pads[c] = port
+	LobbyAddLocalClient(menu, c)
+	return true
+end
+
+local function return_lent_pad(c)
+	local port = lent_pads[c]
+	if port == nil then
+		return
+	end
+	lent_pads[c] = nil
+	if Engine.GamepadsConnectedMap == nil or player1_pad_port() ~= nil or not valid_port(port) then
+		return
+	end
+	log("return: port " .. tostring(port) .. " from controller " .. tostring(c) .. " -> player 1")
+	Engine.GamepadsConnectedMap(0, port)
+end
+
 local function guests_seated()
 	return Engine.GetUsedControllerCount() > 1
 end
@@ -215,7 +293,7 @@ local function room_for_another()
 	if not stock_room_left() then
 		return false
 	end
-	return not guests_seated() or free_pad_controller() ~= nil
+	return not guests_seated() or free_pad_controller() ~= nil or player1_pad_lendable()
 end
 
 -- The button's own decision (SplitscreenLobbyButtonPC "Available"), so the click
@@ -386,6 +464,9 @@ local function install()
 						end
 					end
 				end
+				for c = 1, SUPPORTED - 1 do
+					return_lent_pad(c)
+				end
 				return
 			end
 			if not guests_seated() then
@@ -398,7 +479,10 @@ local function install()
 			if c ~= nil and LobbyAddLocalClient ~= nil then
 				log("toggle: activate controller " .. c .. " (stock join)")
 				LobbyAddLocalClient(menu, c)
+				return
 			end
+			-- Every connected pad has a seat: player 1 lends theirs (keyboard player 1).
+			lend_player1_pad(menu)
 		end
 		LobbySplitscreenToggle = wrapped_toggle
 	end
@@ -423,6 +507,21 @@ local function install()
 			return stock_add(menu, controller)
 		end
 		LobbyAddLocalClient = wrapped_add
+	end
+
+	-- A guest leaving (B on their pad, or the engine's own remove) gives a lent pad
+	-- back to player 1.
+	if LobbyRemoveLocalClientFromLobby ~= nil and LobbyRemoveLocalClientFromLobby ~= wrapped_remove then
+		local stock_remove = LobbyRemoveLocalClientFromLobby
+		wrapped_remove = function(menu, controller)
+			log("LobbyRemoveLocalClientFromLobby c" .. tostring(controller))
+			local result = stock_remove(menu, controller)
+			if controller ~= nil then
+				return_lent_pad(controller)
+			end
+			return result
+		end
+		LobbyRemoveLocalClientFromLobby = wrapped_remove
 	end
 end
 

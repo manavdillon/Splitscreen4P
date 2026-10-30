@@ -1,4 +1,4 @@
-Splitscreen4P 2.7.0  -  build {VERSION}
+Splitscreen4P 2.7.1  -  build {VERSION}
 ==========================================
 
 Up to FOUR local split-screen players for Call of Duty: Black Ops III on PC -
@@ -11,6 +11,25 @@ https://github.com/manavdillon/Splitscreen4P/issues
 The mod itself is LocalPlayer123's "BO3 4-Player Local Splitscreen on PC"
 (https://github.com/LocalPlayer123/BO3-4-Player-Local-Splitscreen-on-PC);
 this package adds a one-click installer around it.
+
+
+NEW IN 2.7.1
+------------
+* New: keyboard and mouse for player 1, controllers for players 2 to 4.
+  Before, the first controller plugged in belonged to player 1 together
+  with the keyboard, so keyboard + two controllers gave two players and
+  the spare pad just idled. Now, when ACTIVATE SPLITSCREEN is pressed
+  while every connected controller already has a player and there is
+  room, player 1's controller is handed to the next player, who joins.
+  Player 1 keeps the keyboard. The controller comes back to player 1
+  when that player presses B or DEACTIVATE is used. Keyboard + 3 pads =
+  4 players; 4 pads = 4 players as before; playing alone with a pad is
+  as before. (Lobby script only; the game code is still 2.6.9.)
+* Docs: mixed controllers (a Steam Controller or PlayStation pad next to
+  an Xbox-type pad) need Steam Input for all of them, or two pads end up
+  driving the same player - see PLAY, step 1.
+
+Updating from 2.7.0: run INSTALL.cmd from this zip.
 
 
 NEW IN 2.7.0
@@ -421,6 +440,12 @@ download the compatible one - press OK; the mod needs that exe too.
 PLAY
 ----
 1. Connect the controllers - before or after starting the game, both work.
+   Mixed controllers (a Steam Controller or a PlayStation pad next to an
+   Xbox-type pad): start the game from Steam with Steam Input on for ALL
+   of them, or two pads drive the same player. In Steam right-click the
+   game > Properties > Controller > "Enable Steam Input", and under
+   Launch Options put:  "<game folder>\boiii.exe" -launch %command%
+   Then press Play in Steam instead of the desktop shortcut.
 2. Main menu: PLAY OFFLINE first, then ZOMBIES or MULTIPLAYER.
    Important: players 3 and 4 can only join the offline lobby. ezz BOIII's
    normal lobby is online, and online play allows two players per PC (the
@@ -429,6 +454,10 @@ PLAY
    B on that controller leaves again.
    ("Activate Splitscreen" also adds the next waiting controller;
    "Deactivate Splitscreen" removes every extra player.)
+   Player 1 on keyboard and mouse: the first controller plugged in belongs
+   to player 1. Once every other controller has joined, click ACTIVATE
+   SPLITSCREEN and that controller becomes the next player; player 1 keeps
+   the keyboard. Keyboard + 3 controllers = 4 players.
 4. Start the game. 3 players = 3 screens, 4 players = 2 x 2 screens.
 
 Players 2-4 get a copy of player 1's weapon kits and stats every time they

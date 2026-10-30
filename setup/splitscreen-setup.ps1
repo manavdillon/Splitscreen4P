@@ -316,11 +316,17 @@ function Show-PlayGuide {
     Info '2. Start the game with the desktop shortcut (or boiii.exe in the game folder).'
     Info '3. Main menu: PLAY OFFLINE, then ZOMBIES or MULTIPLAYER (bots work).'
     Info '4. In the lobby every extra player presses A on their controller to join; B leaves.'
+    Info '   Player 1 on keyboard + mouse: the first pad belongs to player 1. Once every other pad'
+    Info '   has joined, click ACTIVATE SPLITSCREEN: that pad becomes the next player and player 1'
+    Info '   keeps the keyboard (keyboard + 3 pads = 4 players).'
     Info '5. Start the match: 3 players = 3 screens, 4 players = 2 x 2.'
     Info ''
     Info 'Players 3 and 4 can only join offline lobbies (the online lobby allows two per PC).'
-    Info 'Prefer the Steam Play button? Right-click the game in Steam > Properties > Launch Options:'
+    Info 'Mixed controllers (Steam Controller or PlayStation pad next to an Xbox-type pad) need Steam'
+    Info 'Input for ALL of them, or two pads drive the same player. In Steam: right-click the game >'
+    Info 'Properties > Controller > "Enable Steam Input", and under Launch Options:'
     Info '   "<game folder>\boiii.exe" -launch %command%'
+    Info 'then press Play in Steam instead of the desktop shortcut.'
 }
 
 # --- check ----------------------------------------------------------------------
